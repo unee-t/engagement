@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 
 	jsonhandler "github.com/apex/log/handlers/json"
-	"github.com/gorilla/pat"
-	"github.com/tj/go/http/response"
 
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/text"
@@ -22,21 +22,35 @@ func init() {
 
 func main() {
 	addr := ":" + os.Getenv("PORT")
-	app := pat.New()
-	app.Get("/", trackengagement)
-	if err := http.ListenAndServe(addr, app); err != nil {
+	http.HandleFunc("/", trackengagement)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.WithError(err).Fatal("error listening")
 	}
 }
 
 func trackengagement(w http.ResponseWriter, r *http.Request) {
 
-	// Track user, notification id, medium & url somewhere ...
-
-	newUrl := r.URL.Query().Get("url")
-	if newUrl == "" {
-		response.BadRequest(w, "Missing URL")
+	qvalues := r.URL.Query()
+	if len(qvalues) == 0 {
+		http.Error(w, "Missing parameter values", http.StatusBadRequest)
 		return
 	}
-	http.Redirect(w, r, newUrl, http.StatusSeeOther)
+
+	for _, input := range []string{"url", "user", "id", "medium"} {
+		if qvalues.Get(input) == "" {
+			http.Error(w, fmt.Sprintf("Missing %s parameter", input), http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Track user, notification id, medium & url somewhere ...
+	log.Infof("Input %v", qvalues)
+
+	newURL := qvalues.Get("url")
+	_, err := url.ParseRequestURI(newURL)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("%s is not a valid URL", newURL), http.StatusBadRequest)
+		return
+	}
+	http.Redirect(w, r, newURL, http.StatusSeeOther)
 }
