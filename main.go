@@ -20,11 +20,16 @@ func init() {
 	}
 }
 
+func muxEngine() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/fail", fail)
+	mux.HandleFunc("/", trackengagement)
+	return mux
+}
+
 func main() {
 	addr := ":" + os.Getenv("PORT")
-	http.HandleFunc("/fail", fail)
-	http.HandleFunc("/", trackengagement)
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := http.ListenAndServe(addr, muxEngine()); err != nil {
 		log.WithError(err).Fatal("error listening")
 	}
 }
