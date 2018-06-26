@@ -13,13 +13,4 @@ prod:
 	jq '.profile |= "uneet-prod" |.stages.production |= (.domain = "e.unee-t.com" | .zone = "unee-t.com")| .actions[0].emails |= ["kai.hendry+eprod@unee-t.com"]' up.json.in > up.json
 	up deploy production
 
-testdev:
-	curl https://e.dev.unee-t.com/version
-
-testdemo:
-	curl https://e.demo.unee-t.com/version
-
-testprod:
-	curl https://e.unee-t.com/version
-
 .PHONY: dev demo prod

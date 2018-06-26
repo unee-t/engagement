@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 
 	jsonhandler "github.com/apex/log/handlers/json"
 
@@ -43,9 +44,17 @@ func trackengagement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newURL := qvalues.Get("url")
-	_, err := url.ParseRequestURI(newURL)
+	u, err := url.ParseRequestURI(newURL)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("%s is not a valid URL", newURL), http.StatusBadRequest)
+		return
+	}
+
+	// We only want to redirect to unee-t.com sites
+	uneetDomain := "unee-t.com" // 2 last parts
+	splitHost := strings.Split(u.Host, ".")
+	if strings.Join(splitHost[len(splitHost)-2:], ".") != uneetDomain {
+		http.Error(w, fmt.Sprintf("%s is not a valid unee-t.com URL", newURL), http.StatusBadRequest)
 		return
 	}
 

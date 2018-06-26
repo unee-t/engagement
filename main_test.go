@@ -17,18 +17,17 @@ func TestRedirection(t *testing.T) {
 		})
 }
 
-func TestRedirectionTwo(t *testing.T) {
+func TestRedirectionNotUneeT(t *testing.T) {
 	r := gofight.New()
 	r.GET("/").
 		SetQuery(gofight.H{
 			"id":     "foobar-321",
-			"url":    "https://www.google.com/search?q=cute+fluffy+animals&source=lnms&tbm=isch",
+			"url":    "https://unee-t.example.com",
 			"medium": "email",
 			"user":   "2",
 		}).
 		Run(muxEngine(), func(r gofight.HTTPResponse, rq gofight.HTTPRequest) {
-			assert.Equal(t, "https://www.google.com/search?q=cute+fluffy+animals&source=lnms&tbm=isch", r.HeaderMap.Get("Location"))
-			assert.Equal(t, http.StatusSeeOther, r.Code)
+			assert.Equal(t, http.StatusBadRequest, r.Code)
 		})
 }
 
