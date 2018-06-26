@@ -1,16 +1,32 @@
 {
-  "name": "engagement",
-  "profile": "uneet-dev",
-  "stages": {
-    "staging": {
-      "domain": "e.dev.unee-t.com",
-      "zone": "dev.unee-t.com"
-    }
-  },
-  "regions": [
-    "ap-southeast-1"
+	"name": "engagement",
+	"profile": "uneet-dev",
+	"stages": {
+		"production": {
+			"domain": "e.dev.unee-t.com",
+			"zone": "dev.unee-t.com"
+		}
+	},
+	"regions": [
+		"ap-southeast-1"
   ],
   "error_pages": {
-    "disable": true
-  }
+	  "disable": true
+  },
+  "actions": [
+	  {
+		  "name": "email.backend",
+		  "type": "email",
+		  "emails": ["kai.hendry+engagement@unee-t.com"]
+	  }
+  ],
+  "alerts": [
+	  {
+		  "metric": "http.5xx",
+		  "statistic": "sum",
+		  "threshold": 1,
+		  "period": "1m",
+		  "action": "email.backend"
+	  }
+  ]
 }

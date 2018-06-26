@@ -22,6 +22,7 @@ func init() {
 
 func main() {
 	addr := ":" + os.Getenv("PORT")
+	http.HandleFunc("/fail", fail)
 	http.HandleFunc("/", trackengagement)
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.WithError(err).Fatal("error listening")
@@ -36,21 +37,31 @@ func trackengagement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, input := range []string{"url", "user", "id", "medium"} {
-		if qvalues.Get(input) == "" {
-			http.Error(w, fmt.Sprintf("Missing %s parameter", input), http.StatusBadRequest)
-			return
-		}
-	}
-
-	// Track user, notification id, medium & url somewhere ...
-	log.Infof("Input %v", qvalues)
-
 	newURL := qvalues.Get("url")
 	_, err := url.ParseRequestURI(newURL)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("%s is not a valid URL", newURL), http.StatusBadRequest)
 		return
 	}
+
+	for _, input := range []string{"user", "id", "medium"} {
+		if qvalues.Get(input) == "" {
+			http.Error(w, fmt.Sprintf("Missing %s parameter", input), http.StatusBadRequest)
+			return
+		}
+	}
+
+	log.WithFields(log.Fields{
+		"id":     qvalues.Get("id"),
+		"user":   qvalues.Get("user"),
+		"url":    qvalues.Get("url"),
+		"medium": qvalues.Get("medium"),
+	}).Info("input")
+
 	http.Redirect(w, r, newURL, http.StatusSeeOther)
+}
+
+func fail(w http.ResponseWriter, r *http.Request) {
+	log.Warn("5xx")
+	http.Error(w, "5xx", http.StatusInternalServerError)
 }
