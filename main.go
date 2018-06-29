@@ -44,6 +44,11 @@ func trackengagement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newURL := qvalues.Get("url")
+	if newURL == "" {
+		http.Error(w, "url searchParam is empty", http.StatusBadRequest)
+		return
+	}
+
 	u, err := url.ParseRequestURI(newURL)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("%s is not a valid URL", newURL), http.StatusBadRequest)
