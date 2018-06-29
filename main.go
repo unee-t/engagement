@@ -58,7 +58,7 @@ func trackengagement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, input := range []string{"user", "id", "medium"} {
+	for _, input := range []string{"email", "id"} {
 		if qvalues.Get(input) == "" {
 			http.Error(w, fmt.Sprintf("Missing %s parameter", input), http.StatusBadRequest)
 			return
@@ -66,10 +66,9 @@ func trackengagement(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.WithFields(log.Fields{
-		"id":     qvalues.Get("id"),
-		"user":   qvalues.Get("user"),
-		"url":    qvalues.Get("url"),
-		"medium": qvalues.Get("medium"),
+		"id":    qvalues.Get("id"),
+		"email": qvalues.Get("email"),
+		"url":   qvalues.Get("url"),
 	}).Info("input")
 
 	http.Redirect(w, r, newURL, http.StatusSeeOther)
