@@ -58,6 +58,11 @@ func trackengagement(w http.ResponseWriter, r *http.Request) {
 	// We only want to redirect to unee-t.com sites
 	uneetDomain := "unee-t.com" // 2 last parts
 	splitHost := strings.Split(u.Host, ".")
+	if len(splitHost) < 2 {
+		log.Errorf("Host %s, length %d", u.Host, len(splitHost))
+		http.Error(w, fmt.Sprintf("%s is not a valid unee-t.com URL", newURL), http.StatusBadRequest)
+		return
+	}
 	if strings.Join(splitHost[len(splitHost)-2:], ".") != uneetDomain {
 		http.Error(w, fmt.Sprintf("%s is not a valid unee-t.com URL", newURL), http.StatusBadRequest)
 		return
